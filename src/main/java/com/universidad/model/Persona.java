@@ -4,52 +4,61 @@ import java.time.LocalDate;
 
 import org.hibernate.validator.constraints.Length;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.Table;
+import jakarta.persistence.Version;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
-@Getter // Genera un getter para todos los campos de la clase
-@Setter // Genera un setter para todos los campos de la clase
-//@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-@Entity // Anotación que indica que esta clase es una entidad JPA
-@Table(name = "persona") // Nombre de la tabla en la base de datos
-@Inheritance(strategy = InheritanceType.JOINED) // Estrategia de herencia para JPA
+@Entity
+@Table(name = "persona")
+@Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Persona {
-    // Atributos de la clase Persona
 
-    @Id // Anotación que indica que este campo es la clave primaria
-    @Column(name = "id_persona") // Nombre de la columna en la base de datos
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Generación automática del ID
+    @Id
+    @Column(name = "id_persona")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Version
-    private Long version; // Campo para manejar la versión de la entidad, útil para el control de concurrencia
+    @Column(nullable = false)
+    private Long version = 0L;
 
-    @Column(nullable = false, length = 50) // Columna no nula con longitud máxima de 50 caracteres
-    // El nombre de la persona no puede ser nulo y tiene una longitud máxima de 50 caracteres
-    @Basic(optional = false) // Columna no nula
-    @Length(min = 3, max = 50) // Validación de longitud
+    @NotBlank(message = "El nombre es obligatorio.")
+    @Length(min = 3, max = 50, message = "El nombre debe tener entre 3 y 50 caracteres.")
+    @Column(nullable = false, length = 50)
     private String nombre;
 
-    @Column(nullable = false, length = 50) // Columna no nula con longitud máxima de 50 caracteres
-    @Length(min = 3, max = 50) // Validación de longitud
-    // El apellido de la persona no puede ser nulo y tiene una longitud máxima de 50 caracteres
-    @Basic(optional = false) // Columna no nula
+    @NotBlank(message = "El apellido es obligatorio.")
+    @Length(min = 3, max = 50, message = "El apellido debe tener entre 3 y 50 caracteres.")
+    @Column(nullable = false, length = 50)
     private String apellido;
 
-    @Column(nullable = false, unique = true) // Columna no nula y con valor único
-    @Basic(optional = false) // Columna no nula
+    @NotBlank(message = "El email es obligatorio.")
+    @Email(message = "El email no es válido.")
+    @Column(nullable = false, unique = true)
     private String email;
 
-    @Column(name = "fecha_nacimiento", nullable = false) // Columna no nula con nombre personalizado
-    @Temporal(TemporalType.DATE) // Tipo de dato fecha
-    @Basic(optional = false) // Columna no nula
+    @NotNull(message = "La fecha de nacimiento es obligatoria.")
+    @Past(message = "La fecha de nacimiento debe ser anterior a la actual.")
+    @Column(name = "fecha_nacimiento", nullable = false)
     private LocalDate fechaNacimiento;
 }
